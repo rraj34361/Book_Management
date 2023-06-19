@@ -1,0 +1,30 @@
+{
+  "name": "book-management",
+  "version": "1.0.0",
+  "description": "Book Management system APIs",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rraj34361/Book_Management.git"
+  },
+  "author": "Ravi Bhardwaj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rraj34361/Book_Management/issues"
+  },
+  "homepage": "https://github.com/rraj34361/Book_Management#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "mongoose": "^7.3.0",
+    "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
