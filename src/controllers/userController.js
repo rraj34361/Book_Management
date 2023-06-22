@@ -7,7 +7,7 @@ const createUser = async (req,res)=>{
   try {
     let {title,name,phone,email,password,address} = req.body
    
- if(!isValid(title)||!isValid(name)||!isValid(phone)||!isValid(email)||!isValid(password)||!isValid(address)){
+ if(!isValid(title)||!isValid(name)||!isValid(phone)||!isValid(email)||!isValid(password)){
     return res.status(400).send({status : false, message : "invalid mandatory input" })
  }
     
@@ -32,16 +32,20 @@ const createUser = async (req,res)=>{
 if(!validator.isEmail(email)){
     return res.status(400).send({status : false, message : "invalid email" })
 }
+const allReadyEmail = await userModel.findOne({email})
+if(allReadyEmail) {
+  return res.status(400).send({status : false, message : "already registered" })
+}
 
   //  password length validation
 
-if(password.length<8 || password.length>15){
+if(password.length<=8 || password.length>=15){
     return res.status(400).send({status : false, message : "password can contain character between 8 to 15" })
 }
 
 const user = await userModel.create({title,name,phone,email,password,address}) 
     
-return res.status(201).send({status : false, data : user})
+return res.status(201).send({status : true, data : user})
   } catch (error) {
     res.status(500).send({
       status: false,
@@ -63,13 +67,13 @@ const userLogin = async (req,res)=>{
       return res.status(400).send({status : false, message : "invalid email" })
   }
   
-if(password.length<8 || password.length>15){
+if(password.length<=8 || password.length>=15){
     return res.status(400).send({status : false, message : "password can contain character between 8 to 15" })
 }
      
     //          login verification  
           
-        const user = await userModel.findOne({email, password, isDeleted : false})     //doubt over this deletion flag
+        const user = await userModel.findOne({email, password})     
 
         if(!user){
             return res.status(401).send({status : false, message : "invalid email or password" })

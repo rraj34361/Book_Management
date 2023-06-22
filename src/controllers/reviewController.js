@@ -1,5 +1,5 @@
-const reviewModel = require('./models/Review');
-const bookModel = require('./models/Book');
+const reviewModel = require('../models/reviewModel');
+const bookModel = require('../models/bookModel');
 const { default: mongoose } = require('mongoose');
 const { isValid } = require('../validation/validator');
 
@@ -38,7 +38,7 @@ const createReview =  async (req, res) => {
     }
   }
 
-  review = review.trim()
+ 
 
   bookId = bookId.trim()
  if(!mongoose.isValidObjectId(bookId) ){
@@ -76,7 +76,7 @@ const updateReview = async (req,res)=>{
      return res.status(400).send({status : false, message : "reviewedBy should be a name only" })
     }
   }
-    reviewedBy = reviewedBy.trim()
+   
 
    if(rating){    
  if(typeof rating !="number"){
@@ -90,7 +90,7 @@ const updateReview = async (req,res)=>{
        
  if(review){
     if(!isValid(review)){
-     return res.status(400).send({status : false, message : "reviewedBy should be a name only" })
+     return res.status(400).send({status : false, message : "invalid review" })
     }
   }
   review = review.trim()
@@ -105,9 +105,9 @@ const leanBook = book.toObject()
 if (!reviewer) {
   return res.status(404).send({status:false,  message: 'reviewer not found' });
 }
-reviewer.review = review;
-reviewer.rating = rating;
-reviewer.reviewerName = reviewedBy;
+reviewer.review = review  || reviewer.review
+reviewer.rating = rating || reviewer.rating
+reviewer.reviewedBy = reviewedBy || reviewer.reviewedBy 
 reviewer.reviewedAt = Date.now()
 
 await reviewer.save()

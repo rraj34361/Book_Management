@@ -1,5 +1,5 @@
 const { default: mongoose } = require('mongoose')
-const booksModel= require('../models/bookModel')
+const bookModel= require('../models/bookModel')
 const userModel= require('../models/userModel')
 const reviewModel= require('../models/reviewModel')
 const {isValid}= require('../validation/validator')
@@ -26,7 +26,7 @@ const createBooks= async (req, res) => {
             message: 'please provide valid userId'
         })
     
-        let userIdExit= await userModel.findOne({_id: userId, isDeleted : false})
+        let userIdExit= await userModel.findOne({_id: userId})
         if(!userIdExit) return res.status(404).send({
             status: false,
             message: 'UserId not exit'
@@ -40,9 +40,9 @@ const createBooks= async (req, res) => {
 
         req.body.releasedAt= moment().format("YYYY-MM-DD")
 
-        const createBooks= await booksModel.create(req.body)
+        const createBooks= await bookModel.create(req.body)
         
-        res.status(201).send({
+     return   res.status(201).send({
             status: true,
             data: createBooks
         })
@@ -74,7 +74,7 @@ const getBooks= async (req, res) => {
             filterBooks.subcategory= subcategory
         }
 
-        let getBooks= await booksModel.find(filterBooks)
+        let getBooks= await bookModel.find(filterBooks)
         .select({_id: 1, title: 1, excerpt: 1, userId: 1, 
             category: 1, reviews: 1, releasedAt: 1})
         .sort({title: 1})
@@ -84,7 +84,7 @@ const getBooks= async (req, res) => {
             message: 'No books found'
         })
 
-        res.status(200).send({
+     return   res.status(200).send({
             status: true,
             data: getBooks
         })
@@ -108,20 +108,20 @@ const getBooksById= async (req, res) => {
             message: 'please provide bookId'
         })
 
-        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false}) 
-        if(!bookIdExit) return res.status(404).send({
+        let bookIdExist= await bookModel.findOne({_id: bookId, isDeleted: false}) 
+        if(!bookIdExist) return res.status(404).send({
             status: false,
             message: 'bookId not exit'
         })
-        bookIdExit = bookIdExit.toObject()
-        let reviewsData= await reviewModel.find({bookId: bookIdExit._id})
+        bookIdExist = bookIdExist.toObject()
+        let reviewsData= await reviewModel.find({bookId: bookIdExist._id, isDeleted : false})
         
-        bookIdExit.reviewsData= reviewsData
-        bookIdExit.reviews= reviewsData.length
+        bookIdExist.reviewsData= reviewsData
+        bookIdExist.reviews= reviewsData.length
 
         res.status(200).send({
             status: true,
-            data: bookIdExit
+            data: bookIdExist
         })
     } catch (error) {
        res.status(500).send({
@@ -143,10 +143,10 @@ const updateBooks= async (req, res) => {
             message: 'please provide bookId'
         })
 
-        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false})
-        if(!bookIdExit) return res.status(404).send({
+        let bookIdExist= await bookModel.findOne({_id: bookId, isDeleted: false})
+        if(!bookIdExist) return res.status(404).send({
             status: false,
-            message: 'bookId not exit'
+            message: 'book not exit'
         })
 
         //authorization add here
@@ -161,7 +161,7 @@ const updateBooks= async (req, res) => {
                 })
             }
 
-            bookIdExit.title= title
+            bookIdExist.title = title || bookIdExist.title
         }
 
         if(excerpt){
@@ -172,7 +172,7 @@ const updateBooks= async (req, res) => {
                 })
             }
 
-            bookIdExit.excerpt= excerpt
+            bookIdExist.excerpt = excerpt  || bookIdExist.excerpt
         }
 
         if(ISBN){
@@ -183,12 +183,12 @@ const updateBooks= async (req, res) => {
                 })
             }
 
-            bookIdExit.ISBN= ISBN
+            bookIdExist.ISBN = ISBN || bookIdExist.ISBN
         }
 
-        bookIdExit.releasedAt= moment().format("YYYY-MM-DD")
+        bookIdExist.releasedAt= moment().format("YYYY-MM-DD")
         
-        const updateBooks= await bookIdExit.save()
+        const updateBooks= await bookIdExist.save()
 
         res.status(200).send({
             status: true,
@@ -214,22 +214,22 @@ const deleteBooksById= async (req, res) => {
             message: 'please provide bookId'
         })
 
-        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false})
-        if(!bookIdExit) return res.status(404).send({
+        let bookIdExist= await bookModel.findOne({_id: bookId, isDeleted: false})
+        if(!bookIdExist) return res.status(404).send({
             status: false,
-            message: 'bookId not exit'
+            message: 'book not exit'
         })
 
         //authorization add here
 
-        bookIdExit.isDeleted= true
-        bookIdExit.deletedAt= new Date()
+        bookIdExist.isDeleted= true
+        bookIdExist.deletedAt= new Date()
 
-        await bookIdExit.save()
+        await bookIdExist.save()
 
         res.status(200).send({
             status: true,
-            message: ''
+            message: 'book deleted successfully'
         })
     } catch (error) {
         res.status(500).send({

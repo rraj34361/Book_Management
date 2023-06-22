@@ -4,7 +4,7 @@ require('dotenv').config
 
 const auth= async (req, res, next) => {
     try {
-        const token= req.headers.token
+        const token= req.headers['x-api-key']
         if(!token){
             return res.status(401).send({
                 status: false,
@@ -24,7 +24,7 @@ const auth= async (req, res, next) => {
                         message: 'user not login'
                     })
                 }
-                req.token= decoded
+                req.userId = decoded.userId
                 next()
             }
         })
@@ -35,5 +35,6 @@ const auth= async (req, res, next) => {
         })
     }
 }
+
 
 module.exports= {auth}
