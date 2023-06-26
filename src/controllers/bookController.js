@@ -32,21 +32,7 @@ const createBooks= async (req, res) => {
             status: false,
             message: 'please provide valid userId'
         })
-
-        //authorized
-        // if(req["x-api-key"].userId != userId){
-        //     return res.status(403).send({
-        //         status: false,
-        //         message: "unauthorized, userId not same"
-        //     })
-        // }
-
-        // let isbnIsValid= validator.isISBN(ISBN)
-        // if(!isbnIsValid) return res.status(400).send({
-        //     status: false,
-        //     message: 'please provide valid isbn'
-        // })
-    
+ 
         let titleAlreadyExit= await bookModel.findOne({title, isDeleted: false})
         if(titleAlreadyExit) return res.status(400).send({
             status: false,
@@ -65,7 +51,7 @@ const createBooks= async (req, res) => {
             message: 'UserId not exit'
         }) 
 
-        // req.body.releasedAt= moment().format("YYYY-MM-DD")
+       
 
         const createBooks= await bookModel.create(req.body)
         
@@ -239,12 +225,8 @@ const updateBooks= async (req, res) => {
         }
 
         if(ISBN){
-            // if(!validator.isISBN(ISBN)) {
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: 'provide valid ISBN'
-            //     })
-            // }
+          
+           
             let isbnAlreadyExit= await bookModel.findOne({ISBN, isDeleted: false})
         if(isbnAlreadyExit) return res.status(400).send({
             status: false,
@@ -301,8 +283,7 @@ const updateBooks= async (req, res) => {
 
             bookIdExit.category= category
         }
-
-        // bookIdExit.releasedAt= moment().format("YYYY-MM-DD")
+ 
         
         const updateBooks= await bookIdExit.save()
 

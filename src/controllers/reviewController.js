@@ -20,8 +20,7 @@ const createReview =  async (req, res) => {
 }
     // Check if the book exists and is not deleted
  let book = await bookModel
-    .findOne({ _id: bookId, isDeleted: false })    //not exists it would give error
-    
+    .findOne({ _id: bookId, isDeleted: false })     
  if (!book) {
       return res.status(404)
       .json({
@@ -64,17 +63,7 @@ const createReview =  async (req, res) => {
     }
   }
    
-//     // Check if the book exists and is not deleted
-//  let book = await bookModel
-//     .findOne({ _id: bookId, isDeleted: false })    //not exists it would give error
-    
-//  if (!book) {
-//       return res.status(404)
-//       .json({
-//         status : false ,
-//         message: 'Book not found' 
-//       });
-//     }
+ 
 
     book.reviews += 1;
     await book.save()
@@ -122,13 +111,6 @@ const updateReview = async (req,res)=>{
     });
   }
 
-//   //authorization
-//   if(req["x-api-key"].userId != book.userId){
-//     return res.status(403).send({
-//         status: false,
-//         message: "unauthorized, userId not same"
-//     })
-// }
 
   const leanBook = book.toObject()
 
@@ -224,14 +206,7 @@ const deleteReview = async(req,res)=>{
       message : " book with this id doesn't exists"
     })
 
-  //   //authorization
-  // if(req["x-api-key"].userId != book.userId){
-  //   return res.status(403).send({
-  //       status: false,
-  //       message: "unauthorized, userId not same"
-  //   })
-  // }
-
+   
     const review = await reviewModel
     .findOne({_id : reviewId, bookId: bookId, isDeleted : false})
     if(!review) return res.status(404).send({
