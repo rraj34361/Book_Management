@@ -8,14 +8,14 @@ const auth= async (req, res, next) => {
         if(!token){
             return res.status(401).send({
                 status: false,
-                message: 'unauthorize'
+                message: 'Unauthorized'
             })
         }
 
         jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
             if(err){return res.status(403).send({
                 status: false,
-                message: 'unauthorize'
+                message: 'Unauthorized'
             })}else{
                 const userId= await userModel.findById(decoded.userId)
                 if(!userId){
@@ -24,7 +24,7 @@ const auth= async (req, res, next) => {
                         message: 'user not login'
                     })
                 }
-                req.userId = decoded.userId
+                req['x-api-key']= decoded
                 next()
             }
         })
@@ -35,6 +35,5 @@ const auth= async (req, res, next) => {
         })
     }
 }
-
 
 module.exports= {auth}
