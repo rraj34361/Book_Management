@@ -1,16 +1,20 @@
 const { default: mongoose } = require('mongoose')
-const bookModel= require('../models/bookModel')
+const booksModel= require('../models/booksModel')
 const userModel= require('../models/userModel')
 const reviewModel= require('../models/reviewModel')
 const {isValid}= require('../validation/validator')
 const moment= require('moment')
 const validator= require('validator')
 
+const {uploadFile}= require("../awss3/awsS3")
+
 const dateFormat = 'YYYY-MM-DD'
 const createBooks= async (req, res) => {
     try {
         let {title, excerpt, userId, ISBN, 
             category, subcategory, releasedAt}= req.body
+
+            
     
         if(!isValid(title) || !isValid(excerpt) || !isValid(userId) 
         || !isValid(ISBN) || !isValid(category) || !isValid(subcategory)){
@@ -19,6 +23,8 @@ const createBooks= async (req, res) => {
                 message: 'please provide valid detail'
             })
         }
+
+        
         
         if(!releasedAt || !moment(releasedAt, dateFormat, true).isValid()){
             return res.status(400).send({
@@ -32,14 +38,28 @@ const createBooks= async (req, res) => {
             status: false,
             message: 'please provide valid userId'
         })
- 
-        let titleAlreadyExit= await bookModel.findOne({title, isDeleted: false})
+
+        //authorized
+        // if(req["x-api-key"].userId != userId){
+        //     return res.status(403).send({
+        //         status: false,
+        //         message: "unauthorized, userId not same"
+        //     })
+        // }
+
+        // let isbnIsValid= validator.isISBN(ISBN)
+        // if(!isbnIsValid) return res.status(400).send({
+        //     status: false,
+        //     message: 'please provide valid isbn'
+        // })
+    
+        let titleAlreadyExit= await booksModel.findOne({title, isDeleted: false})
         if(titleAlreadyExit) return res.status(400).send({
             status: false,
             message: 'title already exit'
         })
 
-        let isbnAlreadyExit= await bookModel.findOne({ISBN, isDeleted: false})
+        let isbnAlreadyExit= await booksModel.findOne({ISBN, isDeleted: false})
         if(isbnAlreadyExit) return res.status(400).send({
             status: false,
             message: 'ISBN already exit'
@@ -51,9 +71,18 @@ const createBooks= async (req, res) => {
             message: 'UserId not exit'
         }) 
 
-       
+        // req.body.releasedAt= moment().format("YYYY-MM-DD")
 
-        const createBooks= await bookModel.create(req.body)
+        let files = req.files;
+    if (files && files.length > 0) {
+      let uploadedFileURL = await uploadFile(files[0]);
+      req.body.bookCover= uploadedFileURL
+    //   return res.status(201).send({msg: "File uploaded successfully", data: uploadedFileURL, file: files});
+    } else {
+      return res.status(400).send({msg: "No file found"});
+    }
+
+        const createBooks= await booksModel.create(req.body)
         
         res.status(201).send({
             status: true,
@@ -92,7 +121,7 @@ const getBooks= async (req, res) => {
             filterBooks.subcategory= subcategory
         }
 
-        let getBooks= await bookModel.find(filterBooks)
+        let getBooks= await booksModel.find(filterBooks)
         .select({_id: 1, title: 1, excerpt: 1, userId: 1, 
             category: 1, reviews: 1, releasedAt: 1})
         .sort({title: 1})
@@ -132,7 +161,7 @@ const getBooksById= async (req, res) => {
             message: 'please provide valid bookId'
         })
 
-        let bookIdExit= await bookModel.findOne({_id: bookId, isDeleted: false}) 
+        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false}) 
         if(!bookIdExit) return res.status(404).send({
             status: false,
             message: 'bookId not exit'
@@ -173,7 +202,7 @@ const updateBooks= async (req, res) => {
             message: 'please provide valid bookId'
         })
 
-        let bookIdExit= await bookModel.findOne({_id: bookId, isDeleted: false})
+        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false})
         if(!bookIdExit) return res.status(404).send({
             status: false,
             message: 'bookId not exit'
@@ -204,7 +233,7 @@ const updateBooks= async (req, res) => {
                     message: 'provide valid title'
                 })
             }
-            let titleAlreadyExit= await bookModel.findOne({title, isDeleted: false})
+            let titleAlreadyExit= await booksModel.findOne({title, isDeleted: false})
         if(titleAlreadyExit) return res.status(400).send({
             status: false,
             message: 'title already exit'
@@ -225,9 +254,13 @@ const updateBooks= async (req, res) => {
         }
 
         if(ISBN){
-          
-           
-            let isbnAlreadyExit= await bookModel.findOne({ISBN, isDeleted: false})
+            // if(!validator.isISBN(ISBN)) {
+            //     return res.status(400).send({
+            //         status: false,
+            //         message: 'provide valid ISBN'
+            //     })
+            // }
+            let isbnAlreadyExit= await booksModel.findOne({ISBN, isDeleted: false})
         if(isbnAlreadyExit) return res.status(400).send({
             status: false,
             message: 'ISBN already exit'
@@ -283,7 +316,8 @@ const updateBooks= async (req, res) => {
 
             bookIdExit.category= category
         }
- 
+
+        // bookIdExit.releasedAt= moment().format("YYYY-MM-DD")
         
         const updateBooks= await bookIdExit.save()
 
@@ -317,7 +351,7 @@ const deleteBooksById= async (req, res) => {
             message: 'please provide valid bookId'
         })
 
-        let bookIdExit= await bookModel.findOne({_id: bookId, isDeleted: false})
+        let bookIdExit= await booksModel.findOne({_id: bookId, isDeleted: false})
         if(!bookIdExit) return res.status(404).send({
             status: false,
             message: 'bookId not exit'

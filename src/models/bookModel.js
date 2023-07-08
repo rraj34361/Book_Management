@@ -1,4 +1,3 @@
-
 const { default: mongoose } = require("mongoose");
 
 const bookSchema= new mongoose.Schema({
@@ -17,7 +16,7 @@ const bookSchema= new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-         
+        trim: true
     },
     ISBN: {
         type: String,
@@ -31,12 +30,17 @@ const bookSchema= new mongoose.Schema({
         trim: true
     },
     subcategory: {
-        type: [String],
+        type: String,
         required: true,
+        trim: true
     },
     reviews: {
         type: Number,
         default: 0
+    },
+    bookCover: {
+        type: String,
+        trim: true
     },
     deletedAt: {
         type: Date

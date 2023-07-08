@@ -1,14 +1,18 @@
 const express= require('express')
 const route= require('./routes/route')
+var bodyParser = require('body-parser');
 const { default: mongoose } = require('mongoose')
 require('dotenv').config()
-
+const {MONGO_URI}  = process.env
 const app= express()
 
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+const multer= require("multer");
+const { AppConfig } = require('aws-sdk');
 
-mongoose.connect(process.env.MONGO_URI, {
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use( multer().any())
+mongoose.connect(MONGO_URI, {
     useNewUrlParser:true
 })
 .then( () => console.log('mongodb is connected'))
@@ -19,5 +23,3 @@ app.use('/', route)
 app.listen(process.env.PORT, () => {
     console.log(`express is running on port ${process.env.PORT}`)
 })
-
- 
