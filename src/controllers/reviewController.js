@@ -1,5 +1,5 @@
 const reviewModel = require('../models/reviewModel');
-const booksModel = require('../models/booksModel');
+const booksModel = require('../models/bookModel');
 const { default: mongoose } = require('mongoose');
 const { isValid } = require('../validation/validator');
 
@@ -122,13 +122,7 @@ const updateReview = async (req,res)=>{
     });
   }
 
-//   //authorization
-//   if(req["x-api-key"].userId != book.userId){
-//     return res.status(403).send({
-//         status: false,
-//         message: "unauthorized, userId not same"
-//     })
-// }
+  
 
   const leanBook = book.toObject()
 
@@ -224,14 +218,7 @@ const deleteReview = async(req,res)=>{
       message : " book with this id doesn't exists"
     })
 
-  //   //authorization
-  // if(req["x-api-key"].userId != book.userId){
-  //   return res.status(403).send({
-  //       status: false,
-  //       message: "unauthorized, userId not same"
-  //   })
-  // }
-
+  
     const review = await reviewModel
     .findOne({_id : reviewId, bookId: bookId, isDeleted : false})
     if(!review) return res.status(404).send({
